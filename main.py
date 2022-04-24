@@ -1,16 +1,32 @@
-# This is a sample Python script.
+from flask import Flask, render_template
+from utils import load_candidates_from_json, get_candidates_by_name, get_candidate, get_candidates_by_skill
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+app = Flask(__name__)
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+data = load_candidates_from_json('candidates.json')
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+@app.route("/")
+def index():
+    return render_template("index.html", candidates=data)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+@app.route("/candidate/<int:uid>")
+def profile(uid):
+    candidate = get_candidate(uid)
+    return render_template("profile.html", candidate=candidate)
+
+
+@app.route("/search/<name>")
+def search(name):
+    candidates = get_candidates_by_name(name)
+    return render_template("search.html", candidates=candidates, candidates_len=len(candidates))
+
+
+@app.route("/skills/<skill>")
+def get_skills(skill):
+    candidates = get_candidates_by_skill(skill)
+    return render_template("skills.html", candidates=candidates, candidates_len=len(candidates), skill=skill)
+
+
+app.run(debug=True)
